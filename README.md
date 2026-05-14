@@ -1,43 +1,59 @@
-# Pygame Web Demo
+# Designing Worlds Pygame Starter
 
-Put audio files here:
+A small Pygame framework for text-driven games that can run locally or in the browser with `pygbag`.
 
-- `assets/ambient_chapel.mp3`
-- `assets/pickup.mp3`
-- `assets/unlock.mp3`
+## Folder structure
 
-The game will still run if those files are missing, but audio will be disabled.
+```text
+designing_worlds_pygame_starter/
+  main.py
+  assets/
+    music/
+    sfx/
+    images/
+    fonts/
+```
 
-## Run locally with normal Python
+Put all images, music, sound effects, and fonts inside `assets/`.
+
+## Run locally
 
 ```bash
+python -m pip install pygame
 python main.py
 ```
 
-## Run/build for browser with pygbag
+The game still runs if sound files are missing.
 
-Install pygbag:
+## Build for the web
+
+From the folder containing `designing_worlds_pygame_starter/`:
 
 ```bash
 python -m pip install pygbag --user --upgrade
+python -m pygbag designing_worlds_pygame_starter
 ```
 
-From the folder **above** this project folder, run:
+Then open the local URL printed by pygbag.
+
+## Publish on GitHub Pages
+
+From inside `designing_worlds_pygame_starter/` after building:
 
 ```bash
-python -m pygbag pygame_web_demo
+rm -rf docs
+cp -r build/web docs
+git add .
+git commit -m "Update web build"
+git push
 ```
 
-Open the local URL that pygbag prints, usually:
+In GitHub: Settings → Pages → Deploy from branch → `main` → `/docs`.
 
-```text
-http://localhost:8000
-```
+## Where students should customize
 
-When ready to publish, use the generated files in:
-
-```text
-pygame_web_demo/build/web/
-```
-
-Upload that `web` folder to GitHub Pages, itch.io HTML5, Netlify, or any static web host.
+- Edit `DialogueScene.rooms` to create rooms, exits, descriptions, and items.
+- Add new command behavior in `DialogueScene.handle_command`.
+- Add new sounds in `AudioManager` setup inside `Game.__init__`.
+- Add new scenes by subclassing `Scene`.
+- Put assets in `assets/music`, `assets/sfx`, and `assets/images`.

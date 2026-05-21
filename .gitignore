@@ -4,6 +4,8 @@ __pycache__/
 *.pyc
 
 # Pygbag output
+docs/*.apk
+docs/*.tar.gz
 build/
 dist/
 web/

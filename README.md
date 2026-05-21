@@ -1,59 +1,50 @@
 # Designing Worlds Pygame Starter
 
-A small Pygame framework for text-driven games that can run locally or in the browser with `pygbag`.
-
-## Folder structure
-
-```text
-designing_worlds_pygame_starter/
-  main.py
-  assets/
-    music/
-    sfx/
-    images/
-    fonts/
-```
-
-Put all images, music, sound effects, and fonts inside `assets/`.
+Refactored, modular version of the Pygame interactive fiction demo.
 
 ## Run locally
 
 ```bash
-python -m pip install pygame
 python main.py
 ```
 
-The game still runs if sound files are missing.
+## Build for the web with pygbag
 
-## Build for the web
-
-From the folder containing `designing_worlds_pygame_starter/`:
+From the directory above this project folder:
 
 ```bash
-python -m pip install pygbag --user --upgrade
-python -m pygbag designing_worlds_pygame_starter
+python -m pygbag designing_worlds_refactored
 ```
 
-Then open the local URL printed by pygbag.
+## File overview
 
-## Publish on GitHub Pages
+- `main.py`: starts the game.
+- `game.py`: main game loop.
+- `settings.py`: resolution, FPS, asset paths.
+- `theme.py`: colors.
+- `fonts.py`: bundled font loading.
+- `audio.py`: sound/music manager.
+- `ui.py`: reusable choice menu.
+- `rendering.py`: drawing helpers.
+- `story.py`: editable story text.
+- `scenes/title.py`: title screen.
+- `scenes/dialogue.py`: main interactive fiction scene.
 
-From inside `designing_worlds_pygame_starter/` after building:
+## Suggested folders
 
-```bash
-rm -rf docs
-cp -r build/web docs
-git add .
-git commit -m "Update web build"
-git push
+```text
+assets/
+  fonts/
+    LibreBaskerville-Regular.ttf
+    LibreBaskerville-Bold.ttf
+  music/
+    ambient_chapel.mp3
+  sfx/
+    pickup.mp3
+    unlock.mp3
+    move.mp3
+    win.mp3
+  images/
 ```
 
-In GitHub: Settings → Pages → Deploy from branch → `main` → `/docs`.
-
-## Where students should customize
-
-- Edit `DialogueScene.rooms` to create rooms, exits, descriptions, and items.
-- Add new command behavior in `DialogueScene.handle_command`.
-- Add new sounds in `AudioManager` setup inside `Game.__init__`.
-- Add new scenes by subclassing `Scene`.
-- Put assets in `assets/music`, `assets/sfx`, and `assets/images`.
+Missing audio files will not crash the game.

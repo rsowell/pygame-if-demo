@@ -1,0 +1,12 @@
+class Theme:
+    BG = (12, 14, 24)
+    PANEL = (28, 31, 48)
+    PANEL_2 = (38, 42, 64)
+    BORDER = (110, 116, 170)
+    BORDER_DIM = (65, 70, 105)
+    TEXT = (236, 238, 248)
+    MUTED = (175, 181, 205)
+    ACCENT = (221, 187, 102)
+    ACCENT_DARK = (112, 82, 35)
+    INPUT_BG = (18, 20, 32)
+    ERROR = (235, 130, 130)

@@ -1,0 +1,13 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Pygbag output
+build/
+dist/
+web/
+
+# OS junk
+.DS_Store
+Thumbs.db

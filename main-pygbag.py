@@ -7,6 +7,8 @@ os.environ.setdefault("SDL_RENDER_DRIVER", "software")
 
 import pygame
 
+# Keep this fixed logical resolution for both local Python and pygbag/web.
+# Changing this affects text wrapping, pagination, and browser canvas size.
 WIDTH, HEIGHT = 960, 640
 FPS = 60
 
@@ -14,6 +16,30 @@ FPS = 60
 def asset_path(*parts):
     """Return a path that works locally and with pygbag."""
     return str(Path("assets", *parts))
+
+
+def load_font(filename, size, fallback_name=None, bold=False):
+    """Load a bundled font if available; otherwise fall back safely.
+
+    For the most consistent local/web appearance, place .ttf files in:
+        assets/fonts/
+
+    Suggested files:
+        assets/fonts/LibreBaskerville-Regular.ttf
+        assets/fonts/LibreBaskerville-Bold.ttf
+    """
+    path = Path(asset_path("fonts", filename))
+
+    if path.exists():
+        return pygame.font.Font(str(path), size)
+
+    print(f"Font warning: could not load fonts/{filename}; using fallback font.")
+    return pygame.font.SysFont(fallback_name, size, bold=bold)
+
+
+def menu_label_font():
+    """Small label font for panel tabs."""
+    return load_font("LibreBaskerville-Regular.ttf", 16, fallback_name="georgia")
 
 
 class Theme:
@@ -102,7 +128,7 @@ class ChoiceMenu:
             pygame.draw.rect(screen, fill, rect, border_radius=8)
             pygame.draw.rect(screen, border, rect, width=2, border_radius=8)
 
-            prefix = "▶ " if selected else "  "
+            prefix = "> " if selected else "  "
             draw_text(screen, font, prefix + label, rect.x + 12, rect.y + 8, Theme.TEXT)
 
 
@@ -220,7 +246,13 @@ He says, "Tu vincis" and takes off the robe. As he holds it out for you, his bod
         if isinstance(lines, str):
             lines = [lines]
 
-        max_lines = 16
+        # Calculate how many lines actually fit in the story panel.
+        # This keeps pagination correct even if the font changes.
+        story_top = 70
+        story_bottom = 532  # leave room for the "[Press Space...]" prompt
+        line_height = self.game.font.get_height() + 5
+        max_lines = max(1, (story_bottom - story_top) // line_height)
+
         display_lines = []
 
         for entry in lines:
@@ -290,8 +322,8 @@ He says, "Tu vincis" and takes off the robe. As he holds it out for you, his bod
         choices = []
 
         if self.location == "dorm":
-            choices.append(("Look at Essay", lambda: self.look_at("essay")))
-            choices.append(("Look at Sewanee Purple", lambda: self.look_at("sewanee purple")))
+            choices.append(("Read Essay", lambda: self.look_at("essay")))
+            choices.append(("Read Sewanee Purple", lambda: self.look_at("sewanee purple")))
 
         for direction in room["exits"]:
             choices.append((f"Go {direction.title()}", lambda d=direction: self.go(d)))
@@ -437,7 +469,7 @@ He says, "Tu vincis" and takes off the robe. As he holds it out for you, his bod
         if self.waiting_for_more:
             draw_text(screen, self.game.small_font, "[Press Space or Enter for more]", 330, 560, Theme.ACCENT)
         else:
-            draw_text(screen, self.game.tiny_font, "↑/↓ or W/S: move   Enter/Space: choose   Esc: title screen", 54, 594, Theme.MUTED)
+            draw_text(screen, self.game.tiny_font, "Up/Down or W/S: move   Enter/Space: choose   Esc: title screen", 54, 594, Theme.MUTED)
 
 
 class TitleScene(Scene):
@@ -457,9 +489,10 @@ class TitleScene(Scene):
     def draw(self, screen):
         draw_background(screen)
         draw_panel(screen, pygame.Rect(150, 120, 660, 390), None)
-        draw_text(screen, self.game.title_font, "Designing Worlds", 244, 194, Theme.ACCENT)
+        draw_text(screen, self.game.title_font, "Designing Worlds", 248, 194, Theme.ACCENT)
         draw_text(screen, self.game.font, "A Pygame framework for text-driven games", 268, 258, Theme.TEXT)
-        draw_text(screen, self.game.small_font, "Use arrows/WASD to move through choices. Press Enter or Space to select.", 226, 306, Theme.MUTED)
+        draw_text(screen, self.game.small_font,"Use arrows/WASD to move through choices.",270,300,Theme.MUTED,)
+        draw_text(screen,self.game.small_font,"Press Enter or Space to select.",325,330,Theme.MUTED,)
         self.menu.draw(screen, self.game.font, 330, 366, 300)
 
 
@@ -470,10 +503,14 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
 
-        self.font = pygame.font.SysFont("georgia", 25)
-        self.small_font = pygame.font.SysFont("georgia", 21)
-        self.tiny_font = pygame.font.SysFont("georgia", 17)
-        self.title_font = pygame.font.SysFont("georgia", 56, bold=True)
+        # Use bundled fonts for consistent appearance locally and on the web.
+        # Put these files in assets/fonts/:
+        #   LibreBaskerville-Regular.ttf
+        #   LibreBaskerville-Bold.ttf
+        self.font = load_font("LibreBaskerville-Regular.ttf", 23, fallback_name="georgia")
+        self.small_font = load_font("LibreBaskerville-Regular.ttf", 19, fallback_name="georgia")
+        self.tiny_font = load_font("LibreBaskerville-Regular.ttf", 16, fallback_name="georgia")
+        self.title_font = load_font("LibreBaskerville-Bold.ttf", 52, fallback_name="georgia", bold=True)
 
         self.audio = AudioManager()
         self.audio.load_sound("pickup", "pickup.ogg")
@@ -524,7 +561,7 @@ def draw_panel(screen, rect, title=None):
         label_rect = pygame.Rect(rect.x + 18, rect.y - 12, 112, 24)
         pygame.draw.rect(screen, Theme.PANEL_2, label_rect, border_radius=8)
         pygame.draw.rect(screen, Theme.BORDER_DIM, label_rect, width=1, border_radius=8)
-        draw_text(screen, pygame.font.SysFont("georgia", 16), title, label_rect.x + 12, label_rect.y + 3, Theme.MUTED)
+        draw_text(screen, menu_label_font(), title, label_rect.x + 12, label_rect.y + 3, Theme.MUTED)
 
 
 def draw_text(screen, font, text, x, y, color=Theme.TEXT):
